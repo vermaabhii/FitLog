@@ -6,7 +6,6 @@
 ![HTML](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![License](https://img.shields.io/badge/License-MIT-22c55e?style=for-the-badge)
 
 ---
 
@@ -26,7 +25,6 @@
 - [Browser Support](#-browser-support)
 - [Future Improvements](#-future-improvements)
 - [Contributing](#-contributing)
-- [License](#-license)
 
 ---
 
@@ -112,30 +110,13 @@ The project deliberately avoids build tools, bundlers, or package managers so it
 
 ## 🏁 Getting Started
 
-### Option 1 — Just Open It (Recommended)
+### Just Open It
 
 1. Download or clone this repository
 2. Navigate to the folder
 3. Double-click `index.html` — it opens in your default browser
 
 No `npm install`, no `npm run dev`, no terminal required.
-
-### Option 2 — Serve Locally (Optional)
-
-If you want proper `localhost` serving (e.g., to avoid some browser restrictions on `file://` URLs):
-
-```bash
-# Using Python (built into most systems)
-python -m http.server 3000
-
-# Using Node.js (if installed)
-npx serve .
-
-# Using VS Code
-# Install the "Live Server" extension → right-click index.html → "Open with Live Server"
-```
-
-Then visit `http://localhost:3000` in your browser.
 
 ---
 
@@ -426,36 +407,6 @@ Contributions are welcome! Since this is a frontend-only project, contributions 
 - Use JSDoc comments for all functions
 - Don't use `innerHTML` with unsanitised user input — always use `escapeHtml()`
 - CSS: follow the existing token-first architecture, no magic numbers
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** — you are free to use, modify, and distribute it for personal or commercial purposes.
-
-```
-MIT License
-
-Copyright (c) 2026 FitLog Contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
 
 ---
 
