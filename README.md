@@ -14,7 +14,6 @@
 - [Overview](#-overview)
 - [Live Demo](#-live-demo)
 - [Features](#-features)
-- [Screenshots](#-screenshots)
 - [Project Structure](#-project-structure)
 - [Getting Started](#-getting-started)
 - [How It Works](#-how-it-works)
@@ -77,19 +76,6 @@ Since FitLog is a pure client-side app, you can run it directly by opening `inde
 - 🖨️ **Print styles** — prints cleanly without UI chrome
 - 🎯 **Reduced motion** — respects `prefers-reduced-motion` OS setting
 - 📲 **Touch-optimised** — bigger tap targets on mobile devices
-
----
-
-## 📸 Screenshots
-
-### Desktop (1280px)
-The two-column layout with the Add Workout form on the left and Quick Stats panel on the right.
-
-### Tablet (768px)
-Cards stack vertically. The Quick Stats panel moves to the top.
-
-### Mobile (390px)
-Fully single-column layout. Filter and sort drop below the section header. Buttons are full-width for easy tapping.
 
 ---
 
