@@ -52,30 +52,30 @@ Since FitLog is a pure client-side app, you can run it directly by opening `inde
 
 | Feature | Description |
 |---|---|
-| ➕ **Add Workout** | Log exercise name, weight (kg), reps, and date |
-| 📋 **Workout History** | View all logged entries sorted newest-first by default |
-| 🗑️ **Delete Entry** | Remove individual workout entries instantly |
-| 🔍 **Filter by Exercise** | Live search to filter history by exercise name |
-| 📊 **Sort Options** | Sort by Newest, Oldest, Exercise Name, or Weight |
-| 📈 **Progress Indicator** | See weight change (▲ +5kg / ▼ -5kg / = Same) vs. previous session |
-| ⚡ **Quick Stats** | Total sessions, unique exercises, most logged, last workout date |
-| 🗓️ **Auto Date** | Date field pre-filled with today, but fully editable |
-| 💾 **LocalStorage** | All data persists across page reloads and browser restarts |
-| 🧹 **Clear All** | Delete entire workout history with a confirmation modal |
-| 🔔 **Toast Notifications** | Instant feedback on add, delete, and clear actions |
-| 🤖 **Autocomplete** | Exercise name input suggests previously used exercises |
+| **Add Workout** | Log exercise name, weight (kg), reps, and date |
+| **Workout History** | View all logged entries sorted newest-first by default |
+| **Delete Entry** | Remove individual workout entries instantly |
+| **Filter by Exercise** | Live search to filter history by exercise name |
+| **Sort Options** | Sort by Newest, Oldest, Exercise Name, or Weight |
+| **Progress Indicator** | See weight change (▲ +5kg / ▼ -5kg / = Same) vs. previous session |
+| **Quick Stats** | Total sessions, unique exercises, most logged, last workout date |
+| **Auto Date** | Date field pre-filled with today, but fully editable |
+| **LocalStorage** | All data persists across page reloads and browser restarts |
+| **Clear All** | Delete entire workout history with a confirmation modal |
+| **Toast Notifications** | Instant feedback on add, delete, and clear actions |
+| **Autocomplete** | Exercise name input suggests previously used exercises |
 
 ### UI / UX Extras
 
-- 🌙 **Dark gym theme** with deep charcoal backgrounds and vibrant indigo/purple accents
-- ✨ **Animated background blobs** for a premium visual feel
-- 🃏 **Card-based layout** with glassmorphism-inspired styling
-- 🖱️ **Hover micro-animations** on workout cards (slide + glow)
-- 📱 **Fully responsive** — all screen sizes from 360px → 1600px+
-- ♿ **Accessible** — semantic HTML, ARIA labels, keyboard navigation
-- 🖨️ **Print styles** — prints cleanly without UI chrome
-- 🎯 **Reduced motion** — respects `prefers-reduced-motion` OS setting
-- 📲 **Touch-optimised** — bigger tap targets on mobile devices
+- **Dark gym theme** with deep charcoal backgrounds and vibrant indigo/purple accents
+- **Animated background blobs** for a premium visual feel
+- **Card-based layout** with glassmorphism-inspired styling
+- **Hover micro-animations** on workout cards (slide + glow)
+- **Fully responsive** — all screen sizes from 360px → 1600px+
+- **Accessible** — semantic HTML, ARIA labels, keyboard navigation
+- **Print styles** — prints cleanly without UI chrome
+- **Reduced motion** — respects `prefers-reduced-motion` OS setting
+- **Touch-optimised** — bigger tap targets on mobile devices
 
 ---
 
