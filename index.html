@@ -10,11 +10,9 @@
     <title>FitLog – Gym Progress Tracker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <!-- Animated background blobs -->
@@ -109,6 +107,17 @@
                     <input type="number" id="weight" name="weight" placeholder="0" min="0" step="0.5"/>
                   </div>
                   <span class="field-error" id="weightError"></span>
+                </div>
+
+                <div class="form-group">
+                  <label for="sets">Sets</label>
+                  <div class="input-wrapper">
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none">
+                      <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                    </svg>
+                    <input type="number" id="sets" name="sets" placeholder="0" min="1"/>
+                  </div>
+                  <span class="field-error" id="setsError"></span>
                 </div>
 
                 <div class="form-group">
@@ -255,6 +264,26 @@
             </div>
           </section>
         </div>
+
+        <!-- ───────────── GRAPH SECTION ───────────── -->
+        <section class="card graph-card" aria-labelledby="graphHeading">
+          <div class="card-header">
+            <div class="card-icon card-icon--teal">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M3 3v18h18M7 14l4-4 4 4 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h2 id="graphHeading" class="card-title">Strength Progress</h2>
+            <div style="margin-left: auto;">
+              <select id="graphExerciseSelect" class="sort-select" aria-label="Select exercise for graph">
+                <option value="">No data</option>
+              </select>
+            </div>
+          </div>
+          <div class="graph-container">
+            <canvas id="progressChart"></canvas>
+          </div>
+        </section>
 
         <!-- ───────────── HISTORY SECTION ───────────── -->
         <section class="card history-card" aria-labelledby="historyHeading">
