@@ -797,7 +797,16 @@ input[type="number"]::-webkit-outer-spin-button { opacity: 0.4; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeOut { to { opacity: 0; transform: translateY(-8px); } }
 
-/* ── 18. FOOTER ──────────────────────────────────────────── */
+/* ── 18. GRAPH ───────────────────────────────────────────── */
+.graph-card { margin-bottom: 24px; }
+.graph-container {
+  width: 100%;
+  height: 300px;
+  position: relative;
+  margin-top: 16px;
+}
+
+/* ── 19. FOOTER ──────────────────────────────────────────── */
 .site-footer {
   margin-top: 48px;
   text-align: center;
