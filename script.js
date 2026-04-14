@@ -8,46 +8,60 @@
 const LS_KEY = 'fitlog_workouts_v1';
 
 // ── STATE ─────────────────────────────────────────────────
-let workouts = [];       // full workout array
-let filterQuery = '';    // current search/filter string
-let sortMode = 'newest'; // current sort mode
+let workouts     = [];
+let filterQuery  = '';
+let sortMode     = 'newest';
+let typeFilter   = 'all';
+let workoutType  = 'strength'; // 'strength' | 'cardio'
 
 // ── DOM REFS ──────────────────────────────────────────────
-const form          = document.getElementById('workoutForm');
-const exNameInput   = document.getElementById('exerciseName');
-const weightInput   = document.getElementById('weight');
-const repsInput     = document.getElementById('reps');
-const dateInput     = document.getElementById('workoutDate');
-const filterInput   = document.getElementById('filterInput');
-const clearFilterEl = document.getElementById('clearFilter');
-const sortSelect    = document.getElementById('sortSelect');
-const workoutList   = document.getElementById('workoutList');
-const emptyState    = document.getElementById('emptyState');
-const noResults     = document.getElementById('noResults');
-const resultMeta    = document.getElementById('resultMeta');
-const clearAllBtn   = document.getElementById('clearAllBtn');
-const modalBackdrop = document.getElementById('modalBackdrop');
-const modalCancel   = document.getElementById('modalCancel');
-const modalConfirm  = document.getElementById('modalConfirm');
-const toastContainer = document.getElementById('toastContainer');
-const datalistEl    = document.getElementById('exerciseSuggestions');
+const form             = document.getElementById('workoutForm');
+const exNameInput      = document.getElementById('exerciseName');
+const weightInput      = document.getElementById('weight');
+const repsInput        = document.getElementById('reps');
+const dateInput        = document.getElementById('workoutDate');
+const filterInput      = document.getElementById('filterInput');
+const clearFilterEl    = document.getElementById('clearFilter');
+const sortSelect       = document.getElementById('sortSelect');
+const typeFilterSelect = document.getElementById('typeFilter');
+const workoutList      = document.getElementById('workoutList');
+const emptyState       = document.getElementById('emptyState');
+const noResults        = document.getElementById('noResults');
+const resultMeta       = document.getElementById('resultMeta');
+const clearAllBtn      = document.getElementById('clearAllBtn');
+const modalBackdrop    = document.getElementById('modalBackdrop');
+const modalCancel      = document.getElementById('modalCancel');
+const modalConfirm     = document.getElementById('modalConfirm');
+const toastContainer   = document.getElementById('toastContainer');
+const datalistEl       = document.getElementById('exerciseSuggestions');
 
-// Header counters
+// Type toggle buttons
+const typeStrengthBtn  = document.getElementById('typeStrength');
+const typeCardioBtn    = document.getElementById('typeCardio');
+const strengthFields   = document.getElementById('strengthFields');
+const cardioFields     = document.getElementById('cardioFields');
+
+// Cardio inputs
+const cardioLabelInput    = document.getElementById('cardioLabel');
+const cardioSpeedInput    = document.getElementById('cardioSpeed');
+const cardioInclineInput  = document.getElementById('cardioIncline');
+const cardioDurationInput = document.getElementById('cardioDuration');
+const cardioDistanceInput = document.getElementById('cardioDistance');
+const cardioDateInput     = document.getElementById('cardioDate');
+
+// Header & stat elements
 const totalWorkoutsEl  = document.getElementById('totalWorkouts');
 const totalExercisesEl = document.getElementById('totalExercises');
-
-// Quick stats
-const statTotalEl  = document.getElementById('statTotal');
-const statUniqueEl = document.getElementById('statUnique');
-const statMostEl   = document.getElementById('statMost');
-const statLastEl   = document.getElementById('statLast');
+const statTotalEl      = document.getElementById('statTotal');
+const statUniqueEl     = document.getElementById('statUnique');
+const statMostEl       = document.getElementById('statMost');
+const statCardioEl     = document.getElementById('statCardio');
+const statLastEl       = document.getElementById('statLast');
+const addBtnLabel      = document.getElementById('addBtnLabel');
+const addBtn           = document.getElementById('addBtn');
 
 // ── LOCALSTORAGE HELPERS ──────────────────────────────────
 
-/**
- * Load workouts from LocalStorage.
- * @returns {Array} Array of workout objects.
- */
 function loadWorkouts() {
   try {
     return JSON.parse(localStorage.getItem(LS_KEY)) || [];
@@ -56,33 +70,20 @@ function loadWorkouts() {
   }
 }
 
-/**
- * Save workout array to LocalStorage.
- * @param {Array} data - The workouts array to persist.
- */
 function saveWorkouts(data) {
   localStorage.setItem(LS_KEY, JSON.stringify(data));
 }
 
 // ── DATE UTILITIES ────────────────────────────────────────
 
-/**
- * Returns today's date as an ISO string (YYYY-MM-DD).
- * @returns {string}
- */
 function getTodayISO() {
-  const d = new Date();
-  const yyyy = d.getFullYear();
-  const mm   = String(d.getMonth() + 1).padStart(2, '0');
-  const dd   = String(d.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
+  const d  = new Date();
+  const yy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yy}-${mm}-${dd}`;
 }
 
-/**
- * Format an ISO date string for display.
- * @param {string} iso - YYYY-MM-DD format string.
- * @returns {string} Human-readable date.
- */
 function formatDate(iso) {
   const [yyyy, mm, dd] = iso.split('-');
   const d = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
@@ -91,91 +92,122 @@ function formatDate(iso) {
   });
 }
 
+// ── WORKOUT TYPE TOGGLE ───────────────────────────────────
+
+function setWorkoutType(type) {
+  workoutType = type;
+
+  if (type === 'strength') {
+    typeStrengthBtn.classList.add('type-btn--active');
+    typeStrengthBtn.classList.remove('cardio-active');
+    typeCardioBtn.classList.remove('type-btn--active', 'cardio-active');
+    strengthFields.style.display = '';
+    cardioFields.style.display   = 'none';
+    addBtnLabel.textContent       = 'Add Workout';
+    addBtn.classList.remove('btn--cardio-mode');
+  } else {
+    typeCardioBtn.classList.add('type-btn--active', 'cardio-active');
+    typeStrengthBtn.classList.remove('type-btn--active');
+    strengthFields.style.display = 'none';
+    cardioFields.style.display   = '';
+    addBtnLabel.textContent       = 'Add Cardio';
+    addBtn.classList.add('btn--cardio-mode');
+    cardioDateInput.value = getTodayISO();
+  }
+  clearErrors();
+}
+
+typeStrengthBtn.addEventListener('click', () => setWorkoutType('strength'));
+typeCardioBtn.addEventListener('click',   () => setWorkoutType('cardio'));
+
 // ── VALIDATION ────────────────────────────────────────────
 
-/**
- * Validate the add-workout form.
- * @returns {boolean} True if form is valid.
- */
 function validateForm() {
   clearErrors();
   let valid = true;
 
-  if (!exNameInput.value.trim()) {
-    showError('exerciseError', 'Exercise name is required.');
-    valid = false;
-  }
-  if (!weightInput.value || Number(weightInput.value) < 0) {
-    showError('weightError', 'Enter a valid weight (≥ 0).');
-    valid = false;
-  }
-  if (!repsInput.value || Number(repsInput.value) < 1) {
-    showError('repsError', 'Enter at least 1 rep.');
-    valid = false;
+  if (workoutType === 'strength') {
+    if (!exNameInput.value.trim()) {
+      showError('exerciseError', 'Exercise name is required.');
+      valid = false;
+    }
+    if (!weightInput.value || Number(weightInput.value) < 0) {
+      showError('weightError', 'Enter a valid weight (≥ 0).');
+      valid = false;
+    }
+    if (!repsInput.value || Number(repsInput.value) < 1) {
+      showError('repsError', 'Enter at least 1 rep.');
+      valid = false;
+    }
+  } else {
+    // Cardio validation
+    if (!cardioSpeedInput.value || Number(cardioSpeedInput.value) <= 0) {
+      showError('cardioSpeedError', 'Enter a valid speed (> 0 km/h).');
+      valid = false;
+    }
+    if (cardioInclineInput.value !== '' && (Number(cardioInclineInput.value) < 0 || Number(cardioInclineInput.value) > 30)) {
+      showError('cardioInclineError', 'Incline must be between 0 and 30%.');
+      valid = false;
+    }
+    if (!cardioDurationInput.value || Number(cardioDurationInput.value) < 1) {
+      showError('cardioDurationError', 'Enter a duration of at least 1 minute.');
+      valid = false;
+    }
   }
   return valid;
 }
 
-/** Clear all inline field errors. */
 function clearErrors() {
-  ['exerciseError', 'weightError', 'repsError'].forEach(id => {
-    document.getElementById(id).textContent = '';
+  ['exerciseError', 'weightError', 'repsError',
+   'cardioSpeedError', 'cardioInclineError', 'cardioDurationError'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '';
   });
 }
 
-/**
- * Display an error message for a form field.
- * @param {string} id  - Element id of the error span.
- * @param {string} msg - Error message text.
- */
 function showError(id, msg) {
-  document.getElementById(id).textContent = msg;
+  const el = document.getElementById(id);
+  if (el) el.textContent = msg;
 }
 
 // ── SORTING ───────────────────────────────────────────────
 
-/**
- * Sort a copy of the workouts array by the current sort mode.
- * @param {Array} arr - Workouts to sort.
- * @returns {Array} Sorted copy.
- */
 function sortWorkouts(arr) {
   const copy = [...arr];
   switch (sortMode) {
     case 'oldest':
       return copy.sort((a, b) => new Date(a.date) - new Date(b.date));
     case 'exercise':
-      return copy.sort((a, b) => a.exercise.localeCompare(b.exercise));
+      return copy.sort((a, b) => (a.exercise || a.label || '').localeCompare(b.exercise || b.label || ''));
     case 'weight':
-      return copy.sort((a, b) => b.weight - a.weight);
+      // For cardio, sort by speed instead
+      return copy.sort((a, b) => {
+        const aVal = a.type === 'cardio' ? (a.speed || 0) : (a.weight || 0);
+        const bVal = b.type === 'cardio' ? (b.speed || 0) : (b.weight || 0);
+        return bVal - aVal;
+      });
     case 'newest':
     default:
       return copy.sort((a, b) => new Date(b.date) - new Date(a.date));
   }
 }
 
-// ── PROGRESS DETECTION ────────────────────────────────────
+// ── PROGRESS DETECTION (strength only) ───────────────────
 
-/**
- * For a given workout entry, find the immediately prior entry
- * for the same exercise and compute a weight delta.
- * @param {Object} entry  - Current workout object.
- * @param {number} index  - Index within the *full* workouts array.
- * @returns {{delta: number, prev: number|null}}
- */
-function getProgress(entry, index) {
-  // Look at all workouts before this one (by date) for the same exercise
-  const exercise = entry.exercise.toLowerCase();
+function getProgress(entry) {
+  if (entry.type === 'cardio') return { delta: null, prev: null };
+
+  const exercise  = entry.exercise.toLowerCase();
   const entryDate = new Date(entry.date);
 
   const earlier = workouts.filter(w =>
+    w.type !== 'cardio' &&
     w.exercise.toLowerCase() === exercise &&
     new Date(w.date) < entryDate,
   );
 
   if (earlier.length === 0) return { delta: null, prev: null };
 
-  // Sort descending to get most recent previous entry
   earlier.sort((a, b) => new Date(b.date) - new Date(a.date));
   const prev = earlier[0];
   return { delta: entry.weight - prev.weight, prev: prev.weight };
@@ -183,45 +215,49 @@ function getProgress(entry, index) {
 
 // ── RENDER ────────────────────────────────────────────────
 
-/** Render the workout list, filtered and sorted, and update all counts. */
 function render() {
-  // Filter
   const query = filterQuery.toLowerCase().trim();
-  const filtered = query
-    ? workouts.filter(w => w.exercise.toLowerCase().includes(query))
-    : workouts;
 
-  // Sort
+  let filtered = workouts;
+
+  // Type filter
+  if (typeFilter !== 'all') {
+    filtered = filtered.filter(w => (w.type || 'strength') === typeFilter);
+  }
+
+  // Search filter
+  if (query) {
+    filtered = filtered.filter(w => {
+      const name = w.type === 'cardio' ? (w.label || 'treadmill cardio') : w.exercise;
+      return name.toLowerCase().includes(query);
+    });
+  }
+
   const sorted = sortWorkouts(filtered);
 
-  // Clear list
   workoutList.innerHTML = '';
 
-  // Empty / no-results states
   if (workouts.length === 0) {
     emptyState.hidden = false;
     noResults.hidden  = true;
     resultMeta.textContent = '';
-  } else if (filtered.length === 0 && query) {
+  } else if (filtered.length === 0) {
     noResults.hidden  = false;
     emptyState.hidden = true;
     resultMeta.textContent = '';
   } else {
     emptyState.hidden = true;
     noResults.hidden  = true;
-    resultMeta.textContent = query
-      ? `Showing ${filtered.length} result${filtered.length !== 1 ? 's' : ''} for "${filterQuery}"`
+    const label = query || typeFilter !== 'all'
+      ? `Showing ${filtered.length} result${filtered.length !== 1 ? 's' : ''}`
       : `${workouts.length} workout${workouts.length !== 1 ? 's' : ''} logged`;
+    resultMeta.textContent = label;
   }
 
-  // Render rows
   sorted.forEach(entry => {
-    // Find original index in workouts array for deletion
-    const origIdx = workouts.findIndex(
-      w => w.id === entry.id,
-    );
-    const { delta, prev } = getProgress(entry, origIdx);
-    const card = buildWorkoutCard(entry, origIdx, delta, prev);
+    const card = entry.type === 'cardio'
+      ? buildCardioCard(entry)
+      : buildStrengthCard(entry);
     workoutList.appendChild(card);
   });
 
@@ -229,40 +265,34 @@ function render() {
   updateDatalist();
 }
 
-/**
- * Build a single workout card element.
- * @param {Object} entry   - Workout data.
- * @param {number} origIdx - Index in the workouts array (for deletion).
- * @param {number|null} delta - Weight change vs previous entry.
- * @param {number|null} prev  - Previous entry weight.
- * @returns {HTMLElement}
- */
-function buildWorkoutCard(entry, origIdx, delta, prev) {
+// ── BUILD STRENGTH CARD ───────────────────────────────────
+
+function buildStrengthCard(entry) {
   const li = document.createElement('div');
   li.className = 'workout-item';
   li.setAttribute('role', 'listitem');
   li.dataset.id = entry.id;
 
-  // Progress badge HTML
+  const { delta, prev } = getProgress(entry);
+
   let badgeHTML = '';
   if (delta !== null) {
     if (delta > 0) {
-      badgeHTML = `<span class="progress-badge progress-badge--up" title="Improvement vs previous session">▲ +${delta}kg</span>`;
+      badgeHTML = `<span class="progress-badge progress-badge--up" title="Improvement vs previous">▲ +${delta}kg</span>`;
     } else if (delta < 0) {
-      badgeHTML = `<span class="progress-badge progress-badge--down" title="Decrease vs previous session">▼ ${delta}kg</span>`;
+      badgeHTML = `<span class="progress-badge progress-badge--down" title="Decrease vs previous">▼ ${delta}kg</span>`;
     } else {
-      badgeHTML = `<span class="progress-badge progress-badge--same" title="Same as previous session">= Same</span>`;
+      badgeHTML = `<span class="progress-badge progress-badge--same" title="Same as previous">= Same</span>`;
     }
   }
 
-  const prevNote = (prev !== null)
-    ? `<span class="prev-note">Previous: ${prev}kg</span>`
-    : '';
+  const prevNote = prev !== null ? `<span class="prev-note">Previous: ${prev}kg</span>` : '';
 
   li.innerHTML = `
     <div class="workout-main">
       <div class="workout-name-row">
         <span class="workout-name">${escapeHtml(entry.exercise)}</span>
+        <span class="type-badge type-badge--strength">Strength</span>
         ${badgeHTML}
       </div>
       <div class="workout-meta">
@@ -282,103 +312,217 @@ function buildWorkoutCard(entry, origIdx, delta, prev) {
         ${formatDate(entry.date)}
       </div>
     </div>
-    <button
-      class="delete-btn"
-      aria-label="Delete ${escapeHtml(entry.exercise)} workout"
-      data-idx="${origIdx}"
-      title="Delete this entry"
-    >
+    <button class="delete-btn" aria-label="Delete ${escapeHtml(entry.exercise)} workout" title="Delete this entry">
       <svg viewBox="0 0 24 24" fill="none">
         <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
   `;
 
-  // Attach delete listener
-  li.querySelector('.delete-btn').addEventListener('click', () => {
-    deleteWorkout(entry.id);
-  });
-
+  li.querySelector('.delete-btn').addEventListener('click', () => deleteWorkout(entry.id));
   return li;
 }
 
-/** Update header chips and quick stats panel. */
+// ── BUILD CARDIO CARD ─────────────────────────────────────
+
+function buildCardioCard(entry) {
+  const li = document.createElement('div');
+  li.className = 'workout-item workout-item--cardio';
+  li.setAttribute('role', 'listitem');
+  li.dataset.id = entry.id;
+
+  const displayName = entry.label ? escapeHtml(entry.label) : 'Treadmill Cardio';
+
+  // Build metrics: speed, incline, duration, distance (if present)
+  const metrics = [];
+
+  metrics.push(`
+    <div class="cardio-metric">
+      <span class="cardio-metric-value">${entry.speed}</span>
+      <span class="cardio-metric-label">km/h</span>
+    </div>
+  `);
+
+  metrics.push('<div class="cardio-metric-sep"></div>');
+
+  metrics.push(`
+    <div class="cardio-metric">
+      <span class="cardio-metric-value">${entry.incline !== undefined && entry.incline !== null && entry.incline !== '' ? entry.incline + '%' : '0%'}</span>
+      <span class="cardio-metric-label">Incline</span>
+    </div>
+  `);
+
+  metrics.push('<div class="cardio-metric-sep"></div>');
+
+  metrics.push(`
+    <div class="cardio-metric">
+      <span class="cardio-metric-value">${entry.duration}</span>
+      <span class="cardio-metric-label">min</span>
+    </div>
+  `);
+
+  if (entry.distance) {
+    metrics.push('<div class="cardio-metric-sep"></div>');
+    metrics.push(`
+      <div class="cardio-metric">
+        <span class="cardio-metric-value">${entry.distance}</span>
+        <span class="cardio-metric-label">km</span>
+      </div>
+    `);
+  }
+
+  li.innerHTML = `
+    <div class="workout-main">
+      <div class="workout-name-row">
+        <span class="workout-name">${displayName}</span>
+        <span class="type-badge type-badge--cardio">Treadmill</span>
+      </div>
+      <div class="cardio-metrics">
+        ${metrics.join('')}
+      </div>
+      <div class="workout-date">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        ${formatDate(entry.date)}
+      </div>
+    </div>
+    <button class="delete-btn" aria-label="Delete cardio session" title="Delete this entry">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  `;
+
+  li.querySelector('.delete-btn').addEventListener('click', () => deleteWorkout(entry.id));
+  return li;
+}
+
+// ── STATS ─────────────────────────────────────────────────
+
 function updateStats() {
-  const total  = workouts.length;
-  const unique = [...new Set(workouts.map(w => w.exercise.toLowerCase()))].length;
+  const total       = workouts.length;
+  const strengthAll = workouts.filter(w => (w.type || 'strength') === 'strength');
+  const cardioAll   = workouts.filter(w => w.type === 'cardio');
+  const unique      = [...new Set(strengthAll.map(w => w.exercise.toLowerCase()))].length;
 
-  // Header
   totalWorkoutsEl.textContent  = total;
-  totalExercisesEl.textContent = unique;
+  totalExercisesEl.textContent = unique + cardioAll.length;
 
-  // Quick stats panel
   statTotalEl.textContent  = total;
   statUniqueEl.textContent = unique;
 
-  // Most logged exercise
   if (total === 0) {
-    statMostEl.textContent = '—';
-    statLastEl.textContent = '—';
-  } else {
+    statMostEl.textContent   = '—';
+    statCardioEl.textContent = '—';
+    statLastEl.textContent   = '—';
+    return;
+  }
+
+  // Most logged strength exercise
+  if (strengthAll.length > 0) {
     const freq = {};
-    workouts.forEach(w => {
+    strengthAll.forEach(w => {
       const k = w.exercise.toLowerCase();
       freq[k] = (freq[k] || 0) + 1;
     });
     const mostEntry = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
     statMostEl.textContent = capitalize(mostEntry[0]) + ` (×${mostEntry[1]})`;
-
-    // Last workout date
-    const sorted = [...workouts].sort((a, b) => new Date(b.date) - new Date(a.date));
-    statLastEl.textContent = formatDate(sorted[0].date);
+  } else {
+    statMostEl.textContent = '—';
   }
+
+  // Cardio summary
+  if (cardioAll.length > 0) {
+    const totalMin = cardioAll.reduce((sum, c) => sum + (c.duration || 0), 0);
+    statCardioEl.textContent = `${cardioAll.length} session${cardioAll.length !== 1 ? 's' : ''} · ${totalMin} min`;
+  } else {
+    statCardioEl.textContent = '—';
+  }
+
+  // Last workout
+  const sorted = [...workouts].sort((a, b) => new Date(b.date) - new Date(a.date));
+  statLastEl.textContent = formatDate(sorted[0].date);
 }
 
-/** Refresh datalist suggestions for exercise name autocomplete. */
 function updateDatalist() {
-  const names = [...new Set(workouts.map(w => capitalize(w.exercise)))];
+  const names = [...new Set(
+    workouts
+      .filter(w => (w.type || 'strength') === 'strength')
+      .map(w => capitalize(w.exercise))
+  )];
   datalistEl.innerHTML = names.map(n => `<option value="${escapeHtml(n)}"></option>`).join('');
 }
 
 // ── CRUD ──────────────────────────────────────────────────
 
-/** Handle form submission to add a workout. */
 function handleAddWorkout(e) {
   e.preventDefault();
   if (!validateForm()) return;
 
-  const entry = {
-    id:       generateId(),
-    exercise: exNameInput.value.trim(),
-    weight:   Number(weightInput.value),
-    reps:     Number(repsInput.value),
-    date:     dateInput.value || getTodayISO(),
-  };
+  let entry;
+
+  if (workoutType === 'strength') {
+    entry = {
+      id:       generateId(),
+      type:     'strength',
+      exercise: exNameInput.value.trim(),
+      weight:   Number(weightInput.value),
+      reps:     Number(repsInput.value),
+      date:     dateInput.value || getTodayISO(),
+    };
+    showToast(`✅ "${capitalize(entry.exercise)}" added!`, 'success');
+  } else {
+    const inclineRaw = cardioInclineInput.value;
+    entry = {
+      id:       generateId(),
+      type:     'cardio',
+      label:    cardioLabelInput.value.trim() || '',
+      speed:    Number(cardioSpeedInput.value),
+      incline:  inclineRaw !== '' ? Number(inclineRaw) : 0,
+      duration: Number(cardioDurationInput.value),
+      distance: cardioDistanceInput.value ? Number(cardioDistanceInput.value) : null,
+      date:     cardioDateInput.value || getTodayISO(),
+    };
+    const name = entry.label || 'Treadmill Cardio';
+    showToast(`🏃 "${name}" session logged!`, 'cardio');
+  }
 
   workouts.unshift(entry);
   saveWorkouts(workouts);
   render();
-  form.reset();
-  dateInput.value = getTodayISO();
-  showToast(`✅ "${capitalize(entry.exercise)}" added!`, 'success');
-  exNameInput.focus();
+
+  // Reset only active section fields
+  if (workoutType === 'strength') {
+    exNameInput.value  = '';
+    weightInput.value  = '';
+    repsInput.value    = '';
+    dateInput.value    = getTodayISO();
+    clearErrors();
+    exNameInput.focus();
+  } else {
+    cardioLabelInput.value    = '';
+    cardioSpeedInput.value    = '';
+    cardioInclineInput.value  = '';
+    cardioDurationInput.value = '';
+    cardioDistanceInput.value = '';
+    cardioDateInput.value     = getTodayISO();
+    clearErrors();
+    cardioSpeedInput.focus();
+  }
 }
 
-/**
- * Delete a workout by its unique ID.
- * @param {string} id - Workout ID to remove.
- */
 function deleteWorkout(id) {
   const idx = workouts.findIndex(w => w.id === id);
   if (idx === -1) return;
-  const name = workouts[idx].exercise;
+  const entry = workouts[idx];
+  const name  = entry.type === 'cardio'
+    ? (entry.label || 'Treadmill Cardio')
+    : entry.exercise;
   workouts.splice(idx, 1);
   saveWorkouts(workouts);
   render();
   showToast(`🗑️ "${capitalize(name)}" deleted.`, 'info');
 }
 
-/** Clear all workouts after modal confirmation. */
 function clearAllWorkouts() {
   workouts = [];
   saveWorkouts(workouts);
@@ -397,7 +541,7 @@ filterInput.addEventListener('input', () => {
 
 clearFilterEl.addEventListener('click', () => {
   filterInput.value = '';
-  filterQuery = '';
+  filterQuery       = '';
   clearFilterEl.classList.remove('visible');
   filterInput.focus();
   render();
@@ -408,67 +552,41 @@ sortSelect.addEventListener('change', () => {
   render();
 });
 
+typeFilterSelect.addEventListener('change', () => {
+  typeFilter = typeFilterSelect.value;
+  render();
+});
+
 // ── MODAL ─────────────────────────────────────────────────
 
-function openModal() {
-  modalBackdrop.hidden = false;
-  modalConfirm.focus();
-}
-
-function closeModal() {
-  modalBackdrop.hidden = true;
-}
+function openModal()  { modalBackdrop.hidden = false; modalConfirm.focus(); }
+function closeModal() { modalBackdrop.hidden = true; }
 
 clearAllBtn.addEventListener('click', () => {
-  if (workouts.length === 0) {
-    showToast('No workouts to clear.', 'info');
-    return;
-  }
+  if (workouts.length === 0) { showToast('No workouts to clear.', 'info'); return; }
   openModal();
 });
 modalCancel.addEventListener('click', closeModal);
 modalConfirm.addEventListener('click', clearAllWorkouts);
-modalBackdrop.addEventListener('click', e => {
-  if (e.target === modalBackdrop) closeModal();
-});
+modalBackdrop.addEventListener('click', e => { if (e.target === modalBackdrop) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modalBackdrop.hidden) closeModal(); });
 
-// Keyboard: Close modal on Escape
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && !modalBackdrop.hidden) closeModal();
-});
+// ── TOAST ─────────────────────────────────────────────────
 
-// ── TOAST NOTIFICATIONS ───────────────────────────────────
-
-/**
- * Show a toast notification.
- * @param {string} msg  - Message text.
- * @param {'success'|'error'|'info'} type - Toast style.
- */
 function showToast(msg, type = 'info') {
   const el = document.createElement('div');
   el.className = `toast toast--${type}`;
   el.innerHTML = `<span class="toast-dot"></span>${escapeHtml(msg)}`;
   toastContainer.appendChild(el);
-
-  // Auto-remove after animation
   setTimeout(() => el.remove(), 3000);
 }
 
 // ── UTILITY ───────────────────────────────────────────────
 
-/**
- * Generate a short unique ID.
- * @returns {string}
- */
 function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
-/**
- * Escape HTML special characters to prevent XSS.
- * @param {string} str
- * @returns {string}
- */
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -478,20 +596,14 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
-/**
- * Capitalize first letter of each word.
- * @param {string} str
- * @returns {string}
- */
 function capitalize(str) {
   return str.replace(/\b\w/g, c => c.toUpperCase());
 }
 
 // ── INIT ──────────────────────────────────────────────────
 
-/** Initialize the application on page load. */
 function init() {
-  workouts = loadWorkouts();
+  workouts        = loadWorkouts();
   dateInput.value = getTodayISO();
   form.addEventListener('submit', handleAddWorkout);
   render();
